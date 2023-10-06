@@ -25,15 +25,16 @@ class AppCubit extends Cubit<AppStates> {
     'Done Tasks',
     'Archived Tasks'
   ];
+  void changeIndex(int index){
+    currentIndex=index;
+    emit(AppChangeBottomNavBar());
+  }
+
   late Database database;
   List<Map> newTasks=[];
   List<Map> doneTasks=[];
   List<Map> archiveTasks=[];
 
-  void changeIndex(int index){
-    currentIndex=index;
-    emit(AppChangeBottomNavBar());
-  }
 
   void createDataBase()  {
      openDatabase(
@@ -76,25 +77,49 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
-  Future<List<Map>> getDataFromDB(database)async{
+  // Future<List<Map>> getDataFromDB(database)async{
+  //   // to make it zero (when clicked not add all)
+  //   newTasks=[];
+  //   doneTasks=[];
+  //   archiveTasks=[];
+  //
+  //   emit(AppGetLoadingDatabase());
+  //   return await database.rawQuery('SELECT * FROM tasks').then((value) {
+  //     value.forEach((element) {
+  //       if(element['status'] == 'new'){
+  //         newTasks.add(element);
+  //       }else if(element['status']=='done'){
+  //         doneTasks.add(element);
+  //       }else{
+  //         archiveTasks.add(element);
+  //       }
+  //     });
+  //     emit(AppGetDatabase());
+  //   });
+  // }
+
+  Future<List<Map>> getDataFromDB(database) async {
     // to make it zero (when clicked not add all)
-    newTasks=[];
-    doneTasks=[];
-    archiveTasks=[];
+    newTasks = [];
+    doneTasks = [];
+    archiveTasks = [];
 
     emit(AppGetLoadingDatabase());
-    return await database.rawQuery('SELECT * FROM tasks').then((value) {
-      value.forEach((element) {
-        if(element['status'] == 'new'){
-          newTasks.add(element);
-        }else if(element['status']=='done'){
-          doneTasks.add(element);
-        }else{
-          archiveTasks.add(element);
-        }
-      });
-      emit(AppGetDatabase());
+    List<Map> result = await database.rawQuery('SELECT * FROM tasks');
+    // if (result == null) {
+    //   return Future.value([]);
+    // }
+    result.forEach((element) {
+      if (element['status'] == 'new') {
+        newTasks.add(element);
+      } else if (element['status'] == 'done') {
+        doneTasks.add(element);
+      } else {
+        archiveTasks.add(element);
+      }
     });
+    emit(AppGetDatabase());
+    return result;
   }
 
  void updateData({
@@ -129,15 +154,6 @@ class AppCubit extends Cubit<AppStates> {
    emit(AppChangeBottomSheet());
   }
 
-
-  // to change app from light to dark
-  // bool isDark=false;
-  // void changeMode(){
-  //   isDark=! isDark;
-  //   CacheHelper.putBoolean(key: 'isDark', value: isDark).then((value) {
-  //     emit(AppChangeMode());
-  //   });
-  // }
 
 
 }

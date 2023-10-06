@@ -18,5 +18,3 @@ class AppChangeBottomSheet extends AppStates{}
 
 class AppGetLoadingDatabase extends AppStates{}
 
-
-class AppChangeMode extends AppStates{}
